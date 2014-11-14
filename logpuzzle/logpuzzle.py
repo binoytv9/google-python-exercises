@@ -25,7 +25,32 @@ def read_urls(filename):
   Screens out duplicate urls and returns the urls sorted into
   increasing order."""
   # +++your code here+++
+  hostname = filename[filename.index('_') + 1 : ]
+
+  log = open(filename).read()
+
+  puzzle_url_list = re.findall(r'GET\s(\S+puzzle\S+)\sHTTP',log)
+
+  puzzle_full_url_list = []
+  for url in puzzle_url_list:
+	full_url = hostname + url
+	if full_url not in puzzle_full_url_list:
+		puzzle_full_url_list.append(full_url)
+
+  puzzle_full_url_list.sort(key=sort_by_second_word)
+  return puzzle_full_url_list
+
+
+def sort_by_second_word(url):
+  tail = os.path.split(url)
+  match = re.search(r'-\w+-(\w+).+',tail)
+  if match:
+	return match.group(1)
+  else:
+	return url
   
+
+
 
 def download_images(img_urls, dest_dir):
   """Given the urls already in the correct order, downloads
@@ -36,7 +61,28 @@ def download_images(img_urls, dest_dir):
   Creates the directory if necessary.
   """
   # +++your code here+++
-  
+  if not os.path.exists(dest_dir):
+	os.makedirs(dest_dir)
+  i=0
+  filename_list = []
+  for url in img_urls:
+	filename = os.path.join(dest_dir,'img' + str(i) + os.path.splitext(url)[1])
+	print 'Retrieving... ',filename
+	urllib.urlretrieve('http://www.' + url,filename)
+	filename_list.append(filename)
+	i += 1
+
+  print 'Creating... index.html'
+  index_file = open(os.path.join(dest_dir,'index.html'),'w')
+  index_file.write('<verbatim>\n<html>\n<body>\n')
+
+  for filename in filename_list:
+	index_file.write('<img src="' + os.path.realpath(filename) + '">')
+
+  index_file.write('\n</body>\n</html>\n')
+
+  index_file.close()
+
 
 def main():
   args = sys.argv[1:]
