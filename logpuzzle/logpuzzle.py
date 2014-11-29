@@ -43,7 +43,7 @@ def read_urls(filename):
 
 def sort_by_second_word(url):
   tail = os.path.split(url)
-  match = re.search(r'-\w+-(\w+).+',tail)
+  match = re.search(r'-\w+-(\w+).+',tail[1])
   if match:
 	return match.group(1)
   else:
@@ -66,7 +66,7 @@ def download_images(img_urls, dest_dir):
   i=0
   filename_list = []
   for url in img_urls:
-	filename = os.path.join(dest_dir,'img' + str(i) + os.path.splitext(url)[1])
+	filename = os.path.join(dest_dir,'img' + str(i))
 	print 'Retrieving... ',filename
 	urllib.urlretrieve('http://www.' + url,filename)
 	filename_list.append(filename)
